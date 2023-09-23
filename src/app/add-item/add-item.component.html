@@ -1,0 +1,51 @@
+<router-outlet></router-outlet>
+<br>
+<div>
+    <button routerLink="/createItem" mat-fab color="primary" aria-label="Example icon button with a Add icon">
+        <mat-icon>add</mat-icon>
+    </button>
+</div>
+<div>
+    <br>
+    <table mat-table [dataSource]="items" class="mat-elevation-z8">
+        <!--- Note that these columns can be defined in any order.
+          The actual rendered columns are set as a property on the row definition" -->
+        <!-- Position Column -->
+        <ng-container matColumnDef="itemName">
+            <th mat-header-cell *matHeaderCellDef>ItemName</th>
+            <td mat-cell *matCellDef="let element"> {{element.itemName}} </td>
+        </ng-container>
+
+        <!-- Name Column -->
+        <ng-container matColumnDef="boxName">
+            <th mat-header-cell *matHeaderCellDef>Box Name</th>
+            <td mat-cell *matCellDef="let element"> {{element.boxName}} </td>
+        </ng-container>
+
+        <!-- Weight Column -->
+        <ng-container matColumnDef="shelfName">
+            <th mat-header-cell *matHeaderCellDef>Shelf Name</th>
+            <td mat-cell *matCellDef="let element"> {{element.shelfName}} </td>
+        </ng-container>
+
+        <!-- Symbol Column -->
+        <ng-container matColumnDef="itemId">
+            <th mat-header-cell *matHeaderCellDef>Category</th>
+            <td mat-cell *matCellDef="let element"> {{element.itemCategory}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="delete">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let element"><button (click)="delete(element.itemId)" mat-fab color="warn" aria-label="Example icon button with a Add icon">
+                <mat-icon>delete</mat-icon>
+            </button></td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+    <mat-paginator [pageSizeOptions]="[5, 10, 20]"
+                 showFirstLastButtons
+                 aria-label="Select page of periodic elements">
+    </mat-paginator>
+</div>
