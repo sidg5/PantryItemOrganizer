@@ -24,74 +24,68 @@ export class CreateItemComponent {
     floatLabel: this.floatLabelControl,
   });
 
-itemName: string="ABCD";
-color: ThemePalette = 'primary';
+  itemName: string = "ABCD";
+  color: ThemePalette = 'primary';
   mode: ProgressSpinnerMode = 'determinate';
   value = 50;
-  model: Item = {itemName:'', itemCategory:'', itemId:'', boxName:'', shelfName:''};
-  message: string|undefined;
-  constructor(private _formBuilder: FormBuilder,private itemService: ItemServiceService) {}
+  model: Item = { itemName: '', itemCategory: '', itemId: '', boxName: '', shelfName: '' };
+  message: string | undefined;
+  errormessage: string | undefined;
+  constructor(private _formBuilder: FormBuilder, private itemService: ItemServiceService) { }
 
-  ngOnInit(){
-    
+  ngOnInit() {
+
     this.getAllShelfs();
     this.loadAllCategories();
   }
 
-  getFloatLabelValue(): FloatLabelType {
-    return this.floatLabelControl.value || 'auto';
-  }
-
-  shelfs: Shelf[]=[];
+  shelfs: Shelf[] = [];
 
 
   boxes: Box[] = [];
-  category: Category [] = [];
+  category: string[] = [];
 
   getAllShelfs() {
     this.itemService.getShelfs().subscribe((shelfs: Shelf[]) => {
-             shelfs.forEach(shelf => {
-                this.shelfs.push(shelf);
-              });
-  });
-}
-onClickSubmit(){
-  if(this.model.boxId==undefined)
-  {
-    this.model.boxId = '-1';
+      shelfs.forEach(shelf => {
+        this.shelfs.push(shelf);
+      });
+    });
   }
-  this.itemService.saveItem(this.model).subscribe(res => {
-    this.message = "Save Successful";
-    setTimeout(() => { this.message=undefined; }, 5000); return this.message;
-    console.log(res);
-  });
-}
+  onClickSubmit() {
+    if (this.model.boxId == undefined) {
+      this.model.boxId = '-1';
+    }
+    if (this.model.shelfId == undefined || this.model.shelfId == null || this.model.itemName == null || this.model.itemName == undefined || this.model.itemCategory == null || this.model.itemCategory == undefined) {
+      this.errormessage = "Please enter values of all needed fields";
+      setTimeout(() => { this.errormessage = undefined; }, 5000);
+    }
+    else {
+      this.itemService.saveItem(this.model).subscribe(res => {
+        this.message = "Save Successful";
+        setTimeout(() => { this.message = undefined; }, 5000); return this.message;
+        console.log(res);
+      });
+    }
+  }
 
-loadBoxes(shelfId: string){
-  this.boxes = [];
-  this.itemService.getBoxes(shelfId).subscribe((boxes: Box[]) => {
-    boxes.forEach(box => {
-       this.boxes.push(box);
-     });
-});
-}
+  loadBoxes(shelfId: string) {
+    this.boxes = [];
+    this.itemService.getBoxes(shelfId).subscribe((boxes: Box[]) => {
+      boxes.forEach(box => {
+        this.boxes.push(box);
+      });
+    });
+  }
 
-loadAllCategories() {
-  this.itemService.getCategories().subscribe((cats: Category[]) => {
-           cats.forEach(cat => {
-              this.category.push(cat);
-            });
-});
-}
-
-saveItem(){
-  shelfId: String;
-  boxId:String;
-  item: Item;
-  //this.itemService.saveItem(shelfId, boxId, item).subscribe(() => {
-    
-//});
-}
+  loadAllCategories() {
+    this.itemService.getCategories().subscribe((cats: string[]) => {
+      cats.sort((a, b) => (a.localeCompare(b)));
+      cats.forEach(cat => {
+        this.category.push(cat);
+      });
+    });
+  }
 }
 
 

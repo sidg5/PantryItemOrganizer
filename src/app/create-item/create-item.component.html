@@ -1,11 +1,15 @@
 <!--mat-spinner></mat-spinner-->
 <router-outlet></router-outlet>
-<br>
 <div>
-    <button routerLink="" mat-fab color="primary" aria-label="Example icon button with a Item List icon">
+    <button style="margin-right:20px" routerLink="" mat-fab color="primary" aria-label="Example icon button with a Item List icon">
         <mat-icon>list</mat-icon>
     </button>
+    
+    <button routerLink="/createItem" mat-fab color="primary" aria-label="Example icon button with a Add icon">
+        <mat-icon>add</mat-icon>
+    </button>
 </div>
+
 <div class="example-container">
     <form (ngSubmit)="onClickSubmit()">
         <div>
@@ -19,7 +23,7 @@
             <label>Shelf Name: </label>
             <mat-form-field>
                 <mat-label>Shelf</mat-label>
-                <mat-select [(ngModel)]="model.shelfId" name="shelf" (selectionChange)="loadBoxes($event.value)">
+                <mat-select required [(ngModel)]="model.shelfId" name="shelf" (selectionChange)="loadBoxes($event.value)">
                     <mat-option *ngFor="let shelf of shelfs" [value]="shelf.shelfId">
                         {{shelf.shelfName}}
                     </mat-option>
@@ -31,13 +35,14 @@
                 <mat-select [(ngModel)]="model.boxId" name="box">
                     <mat-option *ngFor="let box of boxes" [value]="box.boxId">
                         {{box.boxName}}
+                        <img src="{{box.photoUrl}}" alt="image" style="height:40px; width:60px">
                     </mat-option>
                 </mat-select>
             </mat-form-field>
 
             <mat-form-field>
                 <mat-label>Category</mat-label>
-                <mat-select [(ngModel)]="model.itemCategory" name="category">
+                <mat-select required [(ngModel)]="model.itemCategory" name="category">
                     <mat-option *ngFor="let cat of category" [value]="cat">
                         {{cat}}
                     </mat-option>
@@ -49,5 +54,9 @@
     <div *ngIf="message">
         <mat-card class="success">{{message}}</mat-card>
     </div>
+    <div *ngIf="errormessage">
+        <mat-card class="failure">{{errormessage}}</mat-card>
+    </div>
     
 </div>
+

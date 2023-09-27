@@ -34,8 +34,8 @@ export class ItemServiceService {
     return this.http.get<Box[]>(this.baseurl + '/getAllBoxesForShelf/'+shelfId).pipe(retry(1), catchError(this.errorHandl));
   }
 
-  getCategories(): Observable<Category[]> {
-    return this.http.get<Category[]>(this.baseurl + '/category/').pipe(retry(1), catchError(this.errorHandl));
+  getCategories(): Observable<string[]> {
+    return this.http.get<string[]>(this.baseurl + '/category/').pipe(retry(1), catchError(this.errorHandl));
   }
 
   saveItem(model: Item) {

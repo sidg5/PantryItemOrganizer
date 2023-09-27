@@ -2,8 +2,11 @@ import { Component, ViewChild } from '@angular/core';
 import { ItemServiceService } from '../item-service.service';
 import { HttpClientModule } from '@angular/common/http';
 import { Observable } from 'rxjs/internal/Observable';
-import { MatTable } from '@angular/material/table';
+import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
+import { filter } from 'rxjs';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
 
 @Component({
   selector: 'app-add-item',
@@ -11,30 +14,71 @@ import { Router } from '@angular/router';
   styleUrls: ['./add-item.component.css']
 })
 export class AddItemComponent {
-  displayedColumns: string[] = ['itemName', 'boxName', 'shelfName', 'itemId', 'delete'];
-  dataSource: Item[] = [
-    { itemName: '1', boxName: 'Hydrogen', shelfName: '1.0079', itemId: 'H', itemCategory: '', box: undefined, shelf: undefined },
-    { itemName: '2', boxName: '3', shelfName: '4', itemId: '5', itemCategory: '', box: undefined, shelf: undefined }];
+  displayedColumns: string[] = ['itemName', 'boxName', 'shelfName', 'itemId','boxUrl', 'delete'];
   items!: Item[];
-  @ViewChild(MatTable) table: MatTable<Item> | undefined;
+  dataSource = new MatTableDataSource(this.items);
 
+  @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild(MatTable) table: MatTable<Item>;
+  @ViewChild(MatSort) sort: MatSort;
 
   constructor(private itemService: ItemServiceService, private _router: Router) { }
 
   ngOnInit() {
     this.getItems();
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+    
   }
+
+  applyFilter(filterValueEvent: any) {
+
+    var filterValue = filterValueEvent.target.value.trim(); // Remove whitespace
+    filterValue = filterValue.toLowerCase(); // MatTableDataSource defaults to lowercase matches
+    console.log(filterValue);
+    this.dataSource.filter = filterValue;
+  }
+
+   // datasource sort has to be updated with the 
+   // template's sort.
+   ngAfterViewInit() {
+    //this.dataSource.sortData = this.sortData();
+    
+   }
+   // custom sort function
+   sortData() {
+    let sortFunction = 
+    (items: Item[], sort: MatSort): Item[] =>  {
+      if (!sort.active || sort.direction === '') {
+        return items;
+      }
+     return items.sort((a: Item, b: Item) => {
+       let comparatorResult = 0;
+       switch (sort.active) {
+         case 'itemName':
+          comparatorResult = a.itemName.localeCompare(b.itemName);
+          break;
+         default:
+           comparatorResult = a.itemName.localeCompare(b.itemName);
+           break;
+       }
+       return comparatorResult * (sort.direction == 'asc' ? 1 : -1);
+      });
+    };
+    return sortFunction;
+   }
 
   delete(itemId: any) {
     console.log("Delete "+itemId);
     this.itemService.deleteItem(itemId).subscribe((resultStr:any) => {
       console.log(resultStr);
       
-      this.items = this.items.filter(element => element.itemId != itemId);
+      this.dataSource.data = this.dataSource.data.filter(element => element.itemId != itemId);
       this.table?.renderRows();
       });
   }
   getItems() {
+   
     this.items = [];
     this.itemService.getItems().subscribe((items: Item[]) => {
 
@@ -42,11 +86,12 @@ export class AddItemComponent {
         item.boxName = (item.box) ? item.box.boxName : "No Box";
         item.shelfName = (item.shelf) ? item.shelf.shelfName : "No Shelf";
         item.itemCategory = item.itemCategory;
+        item.boxUrl = (item.box) ? item.box.photoUrl : "";
         console.log(item.itemName + "");
         console.log((item.box) ? item.box.boxName : "No Box");
         console.log((item.shelf) ? item.shelf.shelfName : "No Shelf");
         this.items.push(item);
-        this.dataSource.push(item);
+        this.dataSource.data.push(item);
       });
       console.log(this.items);
       this.table?.renderRows();
@@ -59,12 +104,13 @@ export class AddItemComponent {
 }
 
 export class Item {
-  itemName: string | undefined;
-  itemId: string | undefined;
-  itemCategory: string | undefined;
-  box?: Box | undefined;
+  itemName: string;
+  itemId: string;
+  itemCategory: string;
+  box?: Box;
   shelf?: Shelf | undefined;
   boxName: string | undefined;
+  boxUrl?: string;
   shelfName: string | undefined;
   boxId?:string;
   shelfId?:string;
@@ -73,7 +119,7 @@ export class Item {
 export class Box {
   boxName: string | undefined;
   boxId: string | undefined;
-  photoUrl: string | undefined;
+  photoUrl?: string;
 }
 
 export class Shelf {
@@ -82,30 +128,6 @@ export class Shelf {
 }
 
 export class Category {
-  enumName: string | undefined;
-  enumId: string | undefined;
+  enumName: string = '';
+  enumId: string = '';
 }
-
-
-export interface PeriodicElement {
-  name: string;
-  position: number;
-  weight: number;
-  symbol: string;
-}
-
-const ELEMENT_DATA: PeriodicElement[] = [
-  { position: 1, name: 'Hydrogen', weight: 1.0079, symbol: 'H' },
-  { position: 2, name: 'Helium', weight: 4.0026, symbol: 'He' },
-  { position: 3, name: 'Lithium', weight: 6.941, symbol: 'Li' },
-  { position: 4, name: 'Beryllium', weight: 9.0122, symbol: 'Be' },
-  { position: 5, name: 'Boron', weight: 10.811, symbol: 'B' },
-  { position: 6, name: 'Carbon', weight: 12.0107, symbol: 'C' },
-  { position: 7, name: 'Nitrogen', weight: 14.0067, symbol: 'N' },
-  { position: 8, name: 'Oxygen', weight: 15.9994, symbol: 'O' },
-  { position: 9, name: 'Fluorine', weight: 18.9984, symbol: 'F' },
-  { position: 10, name: 'Neon', weight: 20.1797, symbol: 'Ne' },
-];
-
-
-

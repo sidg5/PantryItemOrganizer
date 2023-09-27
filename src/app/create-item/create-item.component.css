@@ -31,3 +31,11 @@
     font-weight: bold;
     padding: 5px;
   }
+
+  .failure {
+    color: white;
+    background-color: rgb(211, 120, 149);
+    text-align: center;
+    font-weight: bold;
+    padding: 5px;
+  }
